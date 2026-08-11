@@ -3,14 +3,6 @@ import axios from 'axios';
 const API_BASE_URL = '/api';
 
 export const api = {
-  textToSpeech: async (text, voice) => {
-    const response = await axios.post(`${API_BASE_URL}/text-to-speech`, {
-      text,
-      voice
-    });
-    return response.data;
-  },
-
   speechToText: async (audioFile) => {
     const formData = new FormData();
     formData.append('audio', audioFile);
@@ -25,14 +17,6 @@ export const api = {
       text,
       from_lang: fromLang,
       to_lang: toLang
-    });
-    return response.data;
-  },
-
-  youtubeSummary: async (url, wordCount) => {
-    const response = await axios.post(`${API_BASE_URL}/youtube-summary`, {
-      url,
-      word_count: wordCount
     });
     return response.data;
   },

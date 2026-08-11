@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Bhasha AI - Local API Verification" tests="25" time="1.367">
+  <testsuite name="Health / Health check" id="62a3fb5e-0dc6-48ee-b6db-dc40363a97c9" timestamp="2026-08-07T17:12:04.589Z" tests="7" failures="0" errors="0" time="0.026">
+    <testcase name="Health returns HTTP 200" time="0.026" classname="HealthHealthCheck"/>
+    <testcase name="Health response is JSON" time="0.026" classname="HealthHealthCheck"/>
+    <testcase name="Health payload is an object" time="0.026" classname="HealthHealthCheck"/>
+    <testcase name="Health status is ok" time="0.026" classname="HealthHealthCheck"/>
+    <testcase name="Health message identifies backend" time="0.026" classname="HealthHealthCheck"/>
+    <testcase name="ElevenLabs configuration flag is boolean" time="0.026" classname="HealthHealthCheck"/>
+    <testcase name="Gemini configuration flag is boolean" time="0.026" classname="HealthHealthCheck"/>
+  </testsuite>
+  <testsuite name="Authentication / Signup rejects missing fields" id="a6f71c21-a346-4a34-9bb4-4c258da68493" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.026">
+    <testcase name="Incomplete signup returns HTTP 400" time="0.026" classname="AuthenticationSignupRejectsMissingFields"/>
+    <testcase name="Incomplete signup explains required fields" time="0.026" classname="AuthenticationSignupRejectsMissingFields"/>
+  </testsuite>
+  <testsuite name="Authentication / Signup rejects empty JSON" id="65234626-a078-43f6-874b-f0a055e98343" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.019">
+    <testcase name="Empty signup returns HTTP 400" time="0.019" classname="AuthenticationSignupRejectsEmptyJson"/>
+    <testcase name="Empty signup reports required fields" time="0.019" classname="AuthenticationSignupRejectsEmptyJson"/>
+  </testsuite>
+  <testsuite name="Authentication / Signup creates a unique user" id="1a10d281-a12d-4d83-adf1-737d9a8670f1" timestamp="2026-08-07T17:12:04.589Z" tests="6" failures="0" errors="0" time="0.329">
+    <testcase name="Valid signup returns HTTP 201" time="0.329" classname="AuthenticationSignupCreatesAUniqueUser"/>
+    <testcase name="Signup marks success" time="0.329" classname="AuthenticationSignupCreatesAUniqueUser"/>
+    <testcase name="Signup returns confirmation message" time="0.329" classname="AuthenticationSignupCreatesAUniqueUser"/>
+    <testcase name="Signup returns a JWT" time="0.329" classname="AuthenticationSignupCreatesAUniqueUser"/>
+    <testcase name="Signup returns the requested email" time="0.329" classname="AuthenticationSignupCreatesAUniqueUser"/>
+    <testcase name="Signup returns a numeric user id" time="0.329" classname="AuthenticationSignupCreatesAUniqueUser"/>
+  </testsuite>
+  <testsuite name="Authentication / Signup rejects duplicate email" id="1c0eeecd-1e30-4d2a-aed2-31f0ac62b687" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.022">
+    <testcase name="Duplicate signup returns HTTP 400" time="0.022" classname="AuthenticationSignupRejectsDuplicateEmail"/>
+    <testcase name="Duplicate signup identifies existing email" time="0.022" classname="AuthenticationSignupRejectsDuplicateEmail"/>
+  </testsuite>
+  <testsuite name="Authentication / Login rejects missing fields" id="b1f386ab-df49-42c1-9259-e07f53390a16" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.029">
+    <testcase name="Incomplete login returns HTTP 400" time="0.029" classname="AuthenticationLoginRejectsMissingFields"/>
+    <testcase name="Incomplete login explains required fields" time="0.029" classname="AuthenticationLoginRejectsMissingFields"/>
+  </testsuite>
+  <testsuite name="Authentication / Login rejects invalid password" id="47673b5d-d97d-419a-8e85-3671193c1132" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.312">
+    <testcase name="Invalid login returns HTTP 401" time="0.312" classname="AuthenticationLoginRejectsInvalidPassword"/>
+    <testcase name="Invalid login uses safe generic error" time="0.312" classname="AuthenticationLoginRejectsInvalidPassword"/>
+  </testsuite>
+  <testsuite name="Authentication / Login rejects unknown email" id="6839f61d-f67b-4dc4-851b-edfa3ab15737" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.016">
+    <testcase name="Unknown email login returns HTTP 401" time="0.016" classname="AuthenticationLoginRejectsUnknownEmail"/>
+    <testcase name="Unknown email uses safe generic error" time="0.016" classname="AuthenticationLoginRejectsUnknownEmail"/>
+  </testsuite>
+  <testsuite name="Authentication / Login returns a JWT" id="b58ade71-fbdb-429e-a838-86c24dc90586" timestamp="2026-08-07T17:12:04.589Z" tests="5" failures="0" errors="0" time="0.280">
+    <testcase name="Valid login returns HTTP 200" time="0.280" classname="AuthenticationLoginReturnsAJwt"/>
+    <testcase name="Login marks success" time="0.280" classname="AuthenticationLoginReturnsAJwt"/>
+    <testcase name="Login returns a JWT" time="0.280" classname="AuthenticationLoginReturnsAJwt"/>
+    <testcase name="Login returns the correct user" time="0.280" classname="AuthenticationLoginReturnsAJwt"/>
+    <testcase name="Login response omits password hash" time="0.280" classname="AuthenticationLoginReturnsAJwt"/>
+  </testsuite>
+  <testsuite name="Authentication / Current user rejects missing JWT" id="067d8ed3-51bf-42fb-96b7-50903d2bb0d9" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.024">
+    <testcase name="Missing JWT returns HTTP 401" time="0.024" classname="AuthenticationCurrentUserRejectsMissingJwt"/>
+    <testcase name="Missing JWT has an authorization message" time="0.024" classname="AuthenticationCurrentUserRejectsMissingJwt"/>
+  </testsuite>
+  <testsuite name="Authentication / Current user rejects malformed JWT" id="e2dba668-366c-49d7-aec5-aa97f3e44e95" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.018">
+    <testcase name="Malformed JWT returns HTTP 422" time="0.018" classname="AuthenticationCurrentUserRejectsMalformedJwt"/>
+    <testcase name="Malformed JWT returns parser message" time="0.018" classname="AuthenticationCurrentUserRejectsMalformedJwt"/>
+  </testsuite>
+  <testsuite name="Authentication / Current user accepts valid JWT" id="944145f4-997b-46a6-824d-f67724aa0803" timestamp="2026-08-07T17:12:04.589Z" tests="4" failures="0" errors="0" time="0.025">
+    <testcase name="Valid JWT user lookup returns HTTP 200" time="0.025" classname="AuthenticationCurrentUserAcceptsValidJwt"/>
+    <testcase name="User lookup marks success" time="0.025" classname="AuthenticationCurrentUserAcceptsValidJwt"/>
+    <testcase name="User lookup returns correct email" time="0.025" classname="AuthenticationCurrentUserAcceptsValidJwt"/>
+    <testcase name="User lookup returns account creation timestamp" time="0.025" classname="AuthenticationCurrentUserAcceptsValidJwt"/>
+  </testsuite>
+  <testsuite name="History / History rejects missing JWT" id="4cfb963d-a016-41d2-9ad0-f4996ba9901a" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.016">
+    <testcase name="Unauthenticated history returns HTTP 401" time="0.016" classname="HistoryHistoryRejectsMissingJwt"/>
+    <testcase name="Unauthenticated history explains JWT requirement" time="0.016" classname="HistoryHistoryRejectsMissingJwt"/>
+  </testsuite>
+  <testsuite name="History / History rejects malformed JWT" id="07d5bffe-1d9c-4635-8d3f-492e7177b0f8" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.016">
+    <testcase name="Malformed history JWT returns HTTP 422" time="0.016" classname="HistoryHistoryRejectsMalformedJwt"/>
+    <testcase name="Malformed history JWT returns parser message" time="0.016" classname="HistoryHistoryRejectsMalformedJwt"/>
+  </testsuite>
+  <testsuite name="History / Save history entry" id="0e51e0eb-65d9-4b4c-956b-15079b4a0b5b" timestamp="2026-08-07T17:12:04.589Z" tests="5" failures="0" errors="0" time="0.034">
+    <testcase name="History save returns HTTP 201" time="0.034" classname="HistorySaveHistoryEntry"/>
+    <testcase name="History save marks success" time="0.034" classname="HistorySaveHistoryEntry"/>
+    <testcase name="History save returns confirmation" time="0.034" classname="HistorySaveHistoryEntry"/>
+    <testcase name="Saved history retains feature type" time="0.034" classname="HistorySaveHistoryEntry"/>
+    <testcase name="Saved history retains marker" time="0.034" classname="HistorySaveHistoryEntry"/>
+  </testsuite>
+  <testsuite name="History / Retrieve saved history" id="1f00a5ba-130f-4e52-915d-157b70709497" timestamp="2026-08-07T17:12:04.589Z" tests="5" failures="0" errors="0" time="0.014">
+    <testcase name="History retrieval returns HTTP 200" time="0.014" classname="HistoryRetrieveSavedHistory"/>
+    <testcase name="History retrieval marks success" time="0.014" classname="HistoryRetrieveSavedHistory"/>
+    <testcase name="History retrieval returns an array" time="0.014" classname="HistoryRetrieveSavedHistory"/>
+    <testcase name="History retrieval contains saved marker" time="0.014" classname="HistoryRetrieveSavedHistory"/>
+    <testcase name="Retrieved history includes timestamp" time="0.014" classname="HistoryRetrieveSavedHistory"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Translation rejects missing fields" id="9071bad0-5cab-47f0-9bf7-6f825c3db71b" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.023">
+    <testcase name="Incomplete translation returns HTTP 400" time="0.023" classname="ValidationAndErrorHandlingTranslationRejectsMissingFields"/>
+    <testcase name="Translation lists missing fields" time="0.023" classname="ValidationAndErrorHandlingTranslationRejectsMissingFields"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Translation rejects missing source language" id="be7a6335-7983-46ed-920f-0fe458726a2a" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.016">
+    <testcase name="Missing source language returns HTTP 400" time="0.016" classname="ValidationAndErrorHandlingTranslationRejectsMissingSourceLanguage"/>
+    <testcase name="Missing source language uses field validation error" time="0.016" classname="ValidationAndErrorHandlingTranslationRejectsMissingSourceLanguage"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Translation rejects missing target language" id="617d1c2a-8545-48b3-af6d-c3fd14e7f0c4" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.016">
+    <testcase name="Missing target language returns HTTP 400" time="0.016" classname="ValidationAndErrorHandlingTranslationRejectsMissingTargetLanguage"/>
+    <testcase name="Missing target language uses field validation error" time="0.016" classname="ValidationAndErrorHandlingTranslationRejectsMissingTargetLanguage"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Translation rejects identical languages" id="7006b20d-7644-4d6a-be38-c08333a2a124" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.021">
+    <testcase name="Same-language translation returns HTTP 400" time="0.021" classname="ValidationAndErrorHandlingTranslationRejectsIdenticalLanguages"/>
+    <testcase name="Same-language translation explains conflict" time="0.021" classname="ValidationAndErrorHandlingTranslationRejectsIdenticalLanguages"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Speech to text rejects missing audio" id="81c6c50f-54d4-43f2-831b-2ec3a93bebc3" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.013">
+    <testcase name="Missing audio returns HTTP 400" time="0.013" classname="ValidationAndErrorHandlingSpeechToTextRejectsMissingAudio"/>
+    <testcase name="Missing audio identifies required file" time="0.013" classname="ValidationAndErrorHandlingSpeechToTextRejectsMissingAudio"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Word to story rejects missing inputs" id="bf5f1d63-5ae7-4d4f-9b05-fb9aa0ab83a8" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.020">
+    <testcase name="Incomplete story request returns HTTP 400" time="0.020" classname="ValidationAndErrorHandlingWordToStoryRejectsMissingInputs"/>
+    <testcase name="Story validation identifies missing theme" time="0.020" classname="ValidationAndErrorHandlingWordToStoryRejectsMissingInputs"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Article to podcast rejects missing article" id="b0a56df0-3653-477a-9d94-994d69d29b36" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.016">
+    <testcase name="Missing article returns HTTP 400" time="0.016" classname="ValidationAndErrorHandlingArticleToPodcastRejectsMissingArticle"/>
+    <testcase name="Podcast validation identifies required article" time="0.016" classname="ValidationAndErrorHandlingArticleToPodcastRejectsMissingArticle"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Video dubbing rejects missing upload" id="17a1c52e-d15f-4a5b-98ce-c9d1a695f072" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.018">
+    <testcase name="Missing video returns HTTP 400" time="0.018" classname="ValidationAndErrorHandlingVideoDubbingRejectsMissingUpload"/>
+    <testcase name="Dubbing validation identifies required video" time="0.018" classname="ValidationAndErrorHandlingVideoDubbingRejectsMissingUpload"/>
+  </testsuite>
+  <testsuite name="Validation and error handling / Missing asset returns JSON 404" id="673e9dba-3623-4aa5-9129-ecade1669c4e" timestamp="2026-08-07T17:12:04.589Z" tests="2" failures="0" errors="0" time="0.018">
+    <testcase name="Missing asset returns HTTP 404" time="0.018" classname="ValidationAndErrorHandlingMissingAssetReturnsJson404"/>
+    <testcase name="Missing asset returns error details" time="0.018" classname="ValidationAndErrorHandlingMissingAssetReturnsJson404"/>
+  </testsuite>
+</testsuites>

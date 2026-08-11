@@ -1,89 +1,12 @@
-.feature-card-netflix {
-  min-width: 280px;
-  height: 350px;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.feature-card-netflix:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 30px rgba(229, 9, 20, 0.4);
-  z-index: 10;
-}
-
-.card-image {
-  height: 60%;
-  background: linear-gradient(135deg, #E50914 0%, #831010 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.card-icon {
-  font-size: 4rem;
-  filter: brightness(1.2);
-}
-
-.feature-card-netflix:hover .card-image {
-  height: 50%;
-}
-
-.card-overlay {
-  padding: 1.5rem;
-  height: 40%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.feature-card-netflix:hover .card-overlay {
-  height: 50%;
-  background: rgba(229, 9, 20, 0.1);
-}
-
-.card-overlay h3 {
-  color: #fff;
-  margin: 0 0 0.75rem 0;
-  font-size: 1.3rem;
-  font-weight: 600;
-}
-
-.card-overlay p {
-  color: #b3b3b3;
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.feature-card-netflix:hover .card-overlay p {
-  color: #e5e5e5;
-}
-
-@media (max-width: 768px) {
-  .feature-card-netflix {
-    min-width: 220px;
-    height: 300px;
-  }
-  
-  .card-icon {
-    font-size: 3rem;
-  }
-  
-  .card-overlay h3 {
-    font-size: 1.1rem;
-  }
-  
-  .card-overlay p {
-    font-size: 0.85rem;
-  }
-}
+.feature-card-netflix { min-width: 0; padding: 0; overflow: hidden; color: var(--ink); background: white; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; text-align: left; transition: border-color .15s ease, box-shadow .15s ease; }
+.feature-card-netflix:hover { border-color: #b9c3d4; box-shadow: 0 4px 14px rgba(15,23,42,.07); }
+.feature-card-netflix:focus-visible { outline: 3px solid rgba(37,99,235,.15); border-color: var(--primary); }
+.card-image { height: 170px; overflow: hidden; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--line); }
+.card-image::after { content: ''; position: absolute; }
+.card-icon { font-size: 3rem; }
+.card-overlay { min-height: 178px; padding: 1.15rem; display: flex; flex-direction: column; }
+.card-overlay h3 { margin: 0 0 .45rem; font-size: 1.05rem; }
+.card-overlay p { margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.55; }
+.card-link { margin-top: auto; padding-top: 1rem; display: flex; align-items: center; gap: .35rem; color: var(--primary); font-size: .82rem; font-weight: 600; }
+.card-link b { font-weight: 500; }
+@media (max-width: 540px) { .card-image { height: 190px; } .card-overlay { min-height: 160px; } }

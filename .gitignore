@@ -9,6 +9,7 @@ env/
 .pytest_cache/
 .mypy_cache/
 .pyre/
+tmp_*.py
 
 # Environment and secrets
 .env

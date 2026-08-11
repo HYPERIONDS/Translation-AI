@@ -7,15 +7,14 @@ from video_processor import VideoProcessor
 from elevenlabs_dubbing import ElevenLabsDubbing
 from utils import format_time, validate_video_file
 import speech_recognition as sr
-from elevenlabs import ElevenLabs
+from elevenlabs.client import ElevenLabs
 from google import genai
 from pydub import AudioSegment
-from youtube_summarizer import YouTubeSummarizer
 from story_generator import StoryGenerator
 from article_to_podcast import ArticleToPodcast
 
 st.set_page_config(
-    page_title="Anuvaad AI - Professional Video Dubbing",
+    page_title="Bhasha AI - Professional Video Dubbing",
     page_icon="🌐",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -438,63 +437,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-def render_text_to_speech(elevenlabs_client):
-    st.markdown("### 🗣️ Text to Speech")
-    
-    text_input = st.text_area(
-        "Enter text to convert to speech",
-        placeholder="Type or paste your text here...",
-        height=150,
-        key="tts_input"
-    )
-    
-    voice_id = st.selectbox(
-        "Select Voice",
-        ["Rachel", "Adam", "Antoni", "Arnold", "Bella", "Domi", "Elli", "Josh", "Sam"],
-        key="tts_voice"
-    )
-    
-    voice_map = {
-        "Rachel": "21m00Tcm4TlvDq8ikWAM",
-        "Adam": "pNInz6obpgDQGcFmaJgB",
-        "Antoni": "ErXwobaYiN019PkySvjV",
-        "Arnold": "VR6AewLTigWG4xSOukaG",
-        "Bella": "EXAVITQu4vr4xnSDxMaL",
-        "Domi": "AZnzlk1XvdvUeBnXmlld",
-        "Elli": "MF3mGyEYCl7XYWbV9V6O",
-        "Josh": "TxGEqnHWrfWFTfGW9XjX",
-        "Sam": "yoZ06aMxZJJ28mfd3POQ"
-    }
-    
-    if st.button("🎵 Generate Speech", key="tts_btn", use_container_width=True):
-        if not text_input.strip():
-            st.error("Please enter some text first")
-        else:
-            try:
-                with st.spinner("Generating speech..."):
-                    audio_generator = elevenlabs_client.text_to_speech.convert(
-                        text=text_input,
-                        voice_id=voice_map[voice_id],
-                        model_id="eleven_multilingual_v2",
-                        output_format="mp3_44100_128"
-                    )
-                    
-                    audio_bytes = b''.join(audio_generator)
-                    
-                    st.audio(audio_bytes, format='audio/mpeg')
-                    
-                    st.download_button(
-                        label="📥 Download Audio",
-                        data=audio_bytes,
-                        file_name=f"tts_{int(time.time())}.mp3",
-                        mime="audio/mpeg",
-                        key="tts_download"
-                    )
-                    
-                    st.success("✅ Speech generated successfully!")
-            except Exception as e:
-                st.error(f"❌ Failed to generate speech: {str(e)}")
-
 def render_speech_to_text():
     st.markdown("### 🎤 Speech to Text")
     
@@ -585,7 +527,7 @@ def render_text_translation(gemini_client):
                     prompt = f"Translate the following text from {from_lang} to {to_lang}. Only provide the translation, no explanations:\n\n{source_text}"
                     
                     response = gemini_client.models.generate_content(
-                        model="gemini-2.0-flash-exp",
+                        model="gemini-3-flash-preview",
                         contents=prompt
                     )
                     translated_text = response.text
@@ -596,56 +538,6 @@ def render_text_translation(gemini_client):
                     st.success(f"✅ Translated from {from_lang} to {to_lang}")
             except Exception as e:
                 st.error(f"❌ Translation failed: {str(e)}")
-
-def render_youtube_summarizer(youtube_summarizer):
-    youtube_url = st.text_input(
-        "Enter YouTube URL",
-        placeholder="https://www.youtube.com/watch?v=...",
-        key="youtube_url"
-    )
-    
-    word_count = st.slider(
-        "Summary word count",
-        min_value=50,
-        max_value=500,
-        value=200,
-        step=50,
-        key="summary_words"
-    )
-    
-    st.markdown('<div class="feature-button-wrapper">', unsafe_allow_html=True)
-    if st.button("📝 Summarize Video", key="youtube_btn", use_container_width=True):
-        if not youtube_url.strip():
-            st.error("Please enter a YouTube URL")
-        else:
-            try:
-                with st.spinner("Processing... This may take a few minutes"):
-                    status = st.empty()
-                    
-                    status.info("⬇️ Downloading video...")
-                    time.sleep(0.5)
-                    
-                    status.info("🎤 Transcribing audio...")
-                    time.sleep(0.5)
-                    
-                    status.info("📄 Generating summary...")
-                    
-                    result = youtube_summarizer.process_youtube_video(youtube_url, word_count)
-                    
-                    if result:
-                        status.empty()
-                        
-                        st.markdown(f"##### 📹 Video: {result['title']}")
-                        st.markdown("##### 📝 Summary:")
-                        st.text_area("Summary", value=result['summary'], height=200, key="youtube_summary")
-                        
-                        st.success("✅ Summary generated successfully!")
-                    else:
-                        st.error("❌ Failed to process video. Please check the URL and try again.")
-                        
-            except Exception as e:
-                st.error(f"❌ Processing failed: {str(e)}")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 def render_word_to_story(story_generator):
     words_input = st.text_input(
@@ -864,6 +756,17 @@ def initialize_services():
     try:
         elevenlabs_api_key = os.environ.get('ELEVENLABS_API_KEY')
         gemini_api_key = os.environ.get('GEMINI_API_KEY')
+
+        if elevenlabs_api_key:
+            try:
+                print(
+                    "ELEVENLABS_API_KEY loaded (Streamlit):",
+                    f"{elevenlabs_api_key[:4]}...{elevenlabs_api_key[-4:]}"
+                )
+            except Exception:
+                print("ELEVENLABS_API_KEY loaded (Streamlit): set (masking failed)")
+        else:
+            print("ELEVENLABS_API_KEY loaded (Streamlit): missing")
         
         if not elevenlabs_api_key:
             st.error("🔑 API key environment variable not set")
@@ -877,26 +780,25 @@ def initialize_services():
         dubbing_service = ElevenLabsDubbing(api_key=elevenlabs_api_key)
         elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
         gemini_client = genai.Client(api_key=gemini_api_key)
-        youtube_summarizer = YouTubeSummarizer(gemini_api_key=gemini_api_key)
         story_generator = StoryGenerator(gemini_api_key=gemini_api_key, elevenlabs_api_key=elevenlabs_api_key)
         article_podcast = ArticleToPodcast(gemini_api_key=gemini_api_key, elevenlabs_api_key=elevenlabs_api_key)
         
-        return video_processor, dubbing_service, elevenlabs_client, gemini_client, youtube_summarizer, story_generator, article_podcast
+        return video_processor, dubbing_service, elevenlabs_client, gemini_client, story_generator, article_podcast
     except Exception as e:
         st.error(f"❌ Failed to initialize services: {str(e)}")
-        return None, None, None, None, None, None, None
+        return None, None, None, None, None, None
 
 def main():
     st.markdown("""
         <div class="header">
-            <span class="logo">🌐 Anuvaad AI</span>
+            <span class="logo">🌐 Bhasha AI</span>
         </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
         <div class="hero">
             <h1>Transform Content<br>Across Languages</h1>
-            <p>AI-powered video dubbing, text-to-speech, speech-to-text, and translation</p>
+            <p>AI-powered video dubbing, speech-to-text, and translation</p>
             <span class="badge">✨ Powered by Advanced AI Technology</span>
         </div>
     """, unsafe_allow_html=True)
@@ -908,7 +810,7 @@ def main():
         st.markdown('</div>', unsafe_allow_html=True)
         return
     
-    video_processor, dubbing_service, elevenlabs_client, gemini_client, youtube_summarizer, story_generator, article_podcast = services
+    video_processor, dubbing_service, elevenlabs_client, gemini_client, story_generator, article_podcast = services
     
     st.markdown('<div class="content-section">', unsafe_allow_html=True)
     
@@ -921,10 +823,6 @@ def main():
             st.markdown('<h3 style="text-align: center; margin: 0 0 1rem 0;">🎬 Video Dubbing</h3>', unsafe_allow_html=True)
             render_video_dubbing(video_processor, dubbing_service)
     
-    with row1_col2:
-        with st.container(border=True):
-            st.markdown('<h3 style="text-align: center; margin: 0 0 1rem 0;">📺 YouTube Summarizer</h3>', unsafe_allow_html=True)
-            render_youtube_summarizer(youtube_summarizer)
     
     row2_col1, row2_col2 = st.columns(2, gap="large")
     
@@ -941,26 +839,20 @@ def main():
     st.markdown("---")
     st.markdown('<h2 style="text-align: center; margin: 2rem 0;">Additional Tools</h2>', unsafe_allow_html=True)
     
-    btn_col1, btn_col2, btn_col3 = st.columns(3, gap="medium")
+    btn_col1, btn_col2 = st.columns(2, gap="medium")
     
     with btn_col1:
-        if st.button("🗣️ Text to Speech", key="tts_feature_btn", use_container_width=True):
-            st.session_state.active_feature = "tts"
-    
-    with btn_col2:
         if st.button("🎤 Speech to Text", key="stt_feature_btn", use_container_width=True):
             st.session_state.active_feature = "stt"
-    
-    with btn_col3:
+
+    with btn_col2:
         if st.button("🌐 Text Translation", key="trans_feature_btn", use_container_width=True):
             st.session_state.active_feature = "trans"
     
     if "active_feature" not in st.session_state:
         st.session_state.active_feature = None
     
-    if st.session_state.active_feature == "tts":
-        render_text_to_speech(elevenlabs_client)
-    elif st.session_state.active_feature == "stt":
+    if st.session_state.active_feature == "stt":
         render_speech_to_text()
     elif st.session_state.active_feature == "trans":
         render_text_translation(gemini_client)
@@ -969,7 +861,7 @@ def main():
     
     st.markdown("""
         <div class="footer">
-            <p>© 2025</p>
+            <p>© 2025 Bhasha AI - Advanced AI Technology</p>
             <p style="font-size: 0.85rem; margin-top: 0.5rem;">Breaking language barriers with artificial intelligence</p>
         </div>
     """, unsafe_allow_html=True)
@@ -1037,7 +929,7 @@ def process_video_with_elevenlabs(input_path, source_lang, target_lang, video_pr
             st.download_button(
                 label="📥 Download Dubbed Video",
                 data=f.read(),
-                file_name=f"anuvaad_ai_{source_lang}_to_{target_lang}_{int(time.time())}.mp4",
+                file_name=f"bhasha_ai_{source_lang}_to_{target_lang}_{int(time.time())}.mp4",
                 mime="video/mp4",
                 type="primary",
                 use_container_width=True

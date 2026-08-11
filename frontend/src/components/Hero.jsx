@@ -10,16 +10,17 @@ function Hero() {
 
   return (
     <section id="hero" className="hero-section">
-      <div className="hero-overlay"></div>
       <div className="hero-content">
-        <h1 className="hero-title">Welcome to Anuvaad AI</h1>
+        <div className="hero-kicker">Multilingual content tools</div>
+        <h1 className="hero-title">Create content for every language.</h1>
         <p className="hero-subtitle">
-          Transform your content across languages with AI-powered dubbing, translation, and creative tools. 
-          Experience the future of multimedia content transformation.
+          Translate text, dub videos, transcribe audio, and produce spoken content from one workspace.
         </p>
-        <button className="btn-hero" onClick={scrollToFeatures}>
-          Get Started
-        </button>
+        <div className="hero-actions">
+          <button className="btn-hero" onClick={scrollToFeatures}>View tools</button>
+          <button className="btn-hero-secondary" onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}>Learn more</button>
+        </div>
+        <p className="hero-note">Video · Audio · Text</p>
       </div>
     </section>
   );

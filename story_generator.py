@@ -1,7 +1,8 @@
 import os
 import tempfile
 from google import genai
-from elevenlabs import ElevenLabs
+from elevenlabs.client import ElevenLabs
+from elevenlabs import VoiceSettings
 from typing import Optional, Dict, List
 
 
@@ -12,6 +13,7 @@ class StoryGenerator:
         """Initialize story generator with Gemini and ElevenLabs APIs"""
         self.gemini_client = genai.Client(api_key=gemini_api_key)
         self.elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
+        self.last_error: Optional[str] = None
         
         self.voice_mapping = {
             'english': {
@@ -29,6 +31,7 @@ class StoryGenerator:
         Generate a story from input words with specified theme, word count, and language
         """
         try:
+            self.last_error = None
             words_str = ', '.join(words)
             
             language_instruction = ""
@@ -58,17 +61,19 @@ class StoryGenerator:
             """
             
             response = self.gemini_client.models.generate_content(
-                model="gemini-2.0-flash-exp",
+                model="gemini-3-flash-preview",
                 contents=prompt
             )
             
             if response and response.text:
                 return response.text.strip()
             else:
+                self.last_error = "Gemini returned an empty response while generating the story."
                 return None
                 
         except Exception as e:
-            print(f"Story generation error: {e}")
+            self.last_error = f"Story generation error: {e}"
+            print(self.last_error)
             return None
     
     def generate_emotional_audio(self, story_text: str, language: str) -> Optional[str]:
@@ -79,9 +84,7 @@ class StoryGenerator:
         try:
             lang_key = 'hindi' if language.lower() == 'hindi' else 'english'
             voice_id = self.voice_mapping[lang_key]['emotional']
-            
-            from elevenlabs import VoiceSettings
-            
+
             audio_generator = self.elevenlabs_client.text_to_speech.convert(
                 text=story_text,
                 voice_id=voice_id,
@@ -104,7 +107,8 @@ class StoryGenerator:
             return audio_path
             
         except Exception as e:
-            print(f"Audio generation error: {e}")
+            self.last_error = f"Audio generation error: {e}"
+            print(self.last_error)
             return None
     
     def create_story_with_audio(self, words: List[str], theme: str, word_count: int, language: str) -> Optional[Dict]:
@@ -131,5 +135,6 @@ class StoryGenerator:
             }
             
         except Exception as e:
-            print(f"Error creating story with audio: {e}")
+            self.last_error = f"Error creating story with audio: {e}"
+            print(self.last_error)
             return None

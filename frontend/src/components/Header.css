@@ -1,135 +1,21 @@
-.netflix-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  transition: background-color 0.3s ease;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-}
-
-.netflix-header.scrolled {
-  background-color: #141414;
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 4%;
-  max-width: 1920px;
-  margin: 0 auto;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.app-logo {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #E50914;
-  cursor: pointer;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-.nav-links a {
-  color: #e5e5e5;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.nav-links a:hover {
-  color: #b3b3b3;
-}
-
-.header-right {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.btn-login,
-.btn-signup {
-  padding: 0.5rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.btn-login {
-  background: transparent;
-  color: white;
-  border: 1px solid white;
-}
-
-.btn-login:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.btn-signup {
-  background: #E50914;
-  color: white;
-}
-
-.btn-signup:hover {
-  background: #f40612;
-}
-
-.user-name {
-  color: #e5e5e5;
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin-right: 0.5rem;
-}
-
-.btn-logout {
-  padding: 0.5rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: #E50914;
-  color: white;
-  border: none;
-}
-
-.btn-logout:hover {
-  background: #f40612;
-}
-
-@media (max-width: 768px) {
-  .header-container {
-    padding: 1rem 4%;
-  }
-  
-  .nav-links {
-    display: none;
-  }
-  
-  .app-logo {
-    font-size: 1.4rem;
-  }
-  
-  .btn-login,
-  .btn-signup {
-    padding: 0.4rem 1rem;
-    font-size: 0.85rem;
-  }
-}
+.site-header { position: fixed; inset: 0 0 auto; z-index: 1000; background: rgba(250,247,241,.97); border-bottom: 1px solid var(--line); }
+.site-header.scrolled { box-shadow: 0 2px 8px rgba(15,23,42,.05); }
+.header-container { max-width: 1120px; height: 68px; margin: auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+.header-left, .header-right, .nav-links { display: flex; align-items: center; }
+.header-left { gap: 3rem; }
+.header-right { gap: .65rem; }
+.brand { display: flex; align-items: center; gap: .65rem; padding: 0; color: var(--ink); background: none; border: 0; cursor: pointer; text-align: left; }
+.brand-mark { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; color: white; background: var(--primary); border-radius: 7px; font-size: 1rem; font-weight: 700; }
+.brand-copy { display: flex; flex-direction: column; }
+.brand-copy strong { font-size: .98rem; }
+.brand-copy small { color: var(--muted); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; }
+.nav-links { gap: 1.5rem; }
+.nav-links a { color: #475467; font-size: .86rem; font-weight: 500; text-decoration: none; cursor: pointer; }
+.nav-links a:hover { color: var(--primary); }
+.btn-login, .btn-signup, .btn-logout { min-height: 36px; padding: 0 .9rem; border-radius: 7px; cursor: pointer; font-size: .82rem; font-weight: 600; }
+.btn-login { color: #344054; background: white; border: 1px solid #d0d5dd; }
+.btn-signup, .btn-logout { color: white; background: var(--primary); border: 1px solid var(--primary); }
+.btn-login:hover { background: #f8fafc; }
+.btn-signup:hover, .btn-logout:hover { background: var(--primary-dark); }
+.user-name { color: var(--muted); font-size: .82rem; }
+@media (max-width: 680px) { .header-container { height: 62px; padding: 0 1rem; } .header-left { gap: 1rem; } .nav-links, .brand-copy small, .user-name { display: none; } .btn-login, .btn-signup, .btn-logout { min-height: 34px; padding: 0 .7rem; } }

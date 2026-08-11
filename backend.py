@@ -16,10 +16,9 @@ from video_processor import VideoProcessor
 from elevenlabs_dubbing import ElevenLabsDubbing
 from utils import format_time, validate_video_file
 import speech_recognition as sr
-from elevenlabs import ElevenLabs
+from elevenlabs.client import ElevenLabs
 from google import genai
 from pydub import AudioSegment
-from youtube_summarizer import YouTubeSummarizer
 from story_generator import StoryGenerator
 from article_to_podcast import ArticleToPodcast
 import base64
@@ -28,10 +27,19 @@ import io
 from models import db, bcrypt, User, UserHistory
 from datetime import timedelta
 
+try:
+    from dotenv import load_dotenv
+except Exception:
+    load_dotenv = None
+
+if load_dotenv:
+    # Ensure `.env` is loaded even when starting `backend.py` directly.
+    load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///anuvaad_ai.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bhasha_ai.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
@@ -46,11 +54,21 @@ with app.app_context():
 elevenlabs_api_key = os.environ.get('ELEVENLABS_API_KEY')
 gemini_api_key = os.environ.get('GEMINI_API_KEY')
 
+if elevenlabs_api_key:
+    try:
+        print(
+            "ELEVENLABS_API_KEY loaded:",
+            f"{elevenlabs_api_key[:4]}...{elevenlabs_api_key[-4:]}"
+        )
+    except Exception:
+        print("ELEVENLABS_API_KEY loaded: set (masking failed)")
+else:
+    print("ELEVENLABS_API_KEY loaded: missing")
+
 video_processor = VideoProcessor()
 dubbing_service = ElevenLabsDubbing(api_key=elevenlabs_api_key) if elevenlabs_api_key else None
 elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key) if elevenlabs_api_key else None
 gemini_client = genai.Client(api_key=gemini_api_key) if gemini_api_key else None
-youtube_summarizer = YouTubeSummarizer(gemini_api_key=gemini_api_key) if gemini_api_key else None
 story_generator = StoryGenerator(gemini_api_key=gemini_api_key, elevenlabs_api_key=elevenlabs_api_key) if gemini_api_key and elevenlabs_api_key else None
 article_podcast = ArticleToPodcast(gemini_api_key=gemini_api_key, elevenlabs_api_key=elevenlabs_api_key) if gemini_api_key and elevenlabs_api_key else None
 
@@ -58,7 +76,12 @@ dubbing_projects = {}
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    return jsonify({'status': 'ok', 'message': 'Backend is running'})
+    return jsonify({
+        'status': 'ok',
+        'message': 'Backend is running',
+        'elevenlabs_configured': bool(elevenlabs_api_key),
+        'gemini_configured': bool(gemini_api_key),
+    })
 
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
@@ -175,46 +198,6 @@ def user_history():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/text-to-speech', methods=['POST'])
-def text_to_speech():
-    try:
-        data = request.json
-        text = data.get('text')
-        voice = data.get('voice', 'Rachel')
-        
-        if not text:
-            return jsonify({'error': 'Text is required'}), 400
-        
-        voice_map = {
-            "Rachel": "21m00Tcm4TlvDq8ikWAM",
-            "Adam": "pNInz6obpgDQGcFmaJgB",
-            "Antoni": "ErXwobaYiN019PkySvjV",
-            "Arnold": "VR6AewLTigWG4xSOukaG",
-            "Bella": "EXAVITQu4vr4xnSDxMaL",
-            "Domi": "AZnzlk1XvdvUeBnXmlld",
-            "Elli": "MF3mGyEYCl7XYWbV9V6O",
-            "Josh": "TxGEqnHWrfWFTfGW9XjX",
-            "Sam": "yoZ06aMxZJJ28mfd3POQ"
-        }
-        
-        audio_generator = elevenlabs_client.text_to_speech.convert(
-            text=text,
-            voice_id=voice_map.get(voice, voice_map['Rachel']),
-            model_id="eleven_multilingual_v2",
-            output_format="mp3_44100_128"
-        )
-        
-        audio_bytes = b''.join(audio_generator)
-        audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
-        
-        return jsonify({
-            'success': True,
-            'audio': audio_base64,
-            'filename': f'tts_{int(time.time())}.mp3'
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 @app.route('/api/speech-to-text', methods=['POST'])
 def speech_to_text():
     try:
@@ -234,7 +217,11 @@ def speech_to_text():
             audio = AudioSegment.from_file(input_path, format=file_extension)
             audio.export(wav_path, format='wav')
         except Exception as e:
-            os.unlink(input_path)
+            try:
+                os.unlink(input_path)
+            except Exception:
+                # Ignore Windows file-in-use errors during cleanup
+                pass
             return jsonify({'error': f'Failed to convert audio: {str(e)}'}), 500
         
         recognizer = sr.Recognizer()
@@ -244,9 +231,16 @@ def speech_to_text():
                 audio_data = recognizer.record(source)
                 text = recognizer.recognize_google(audio_data)
         finally:
-            os.unlink(input_path)
+            try:
+                os.unlink(input_path)
+            except Exception:
+                # Best-effort cleanup; ignore if file is temporarily locked
+                pass
             if os.path.exists(wav_path):
-                os.unlink(wav_path)
+                try:
+                    os.unlink(wav_path)
+                except Exception:
+                    pass
         
         return jsonify({
             'success': True,
@@ -274,7 +268,7 @@ def text_translation():
         prompt = f"Translate the following text from {from_lang} to {to_lang}. Only provide the translation, no explanations:\n\n{text}"
         
         response = gemini_client.models.generate_content(
-            model="gemini-2.0-flash-exp",
+            model="gemini-3-flash-preview",
             contents=prompt
         )
         translated_text = response.text
@@ -285,29 +279,6 @@ def text_translation():
             'from_lang': from_lang,
             'to_lang': to_lang
         })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/youtube-summary', methods=['POST'])
-def youtube_summary():
-    try:
-        data = request.json
-        youtube_url = data.get('url')
-        word_count = data.get('word_count', 200)
-        
-        if not youtube_url:
-            return jsonify({'error': 'YouTube URL is required'}), 400
-        
-        result = youtube_summarizer.process_youtube_video(youtube_url, word_count)
-        
-        if result:
-            return jsonify({
-                'success': True,
-                'title': result['title'],
-                'summary': result['summary']
-            })
-        else:
-            return jsonify({'error': 'Failed to process video'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -345,7 +316,10 @@ def word_to_story():
             
             return jsonify(response_data)
         else:
-            return jsonify({'error': 'Failed to generate story'}), 500
+            last_error = getattr(story_generator, 'last_error', None) if story_generator else None
+            print(f"Word-to-story failed. last_error={last_error!r}")
+            message = last_error or 'Failed to generate story'
+            return jsonify({'error': message}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -373,13 +347,18 @@ def article_to_podcast():
                 'filename': f'podcast_{int(time.time())}.mp3'
             })
         else:
-            return jsonify({'error': 'Failed to generate podcast'}), 500
+            last_error = getattr(article_podcast, 'last_error', None)
+            message = last_error or 'Failed to generate podcast'
+            return jsonify({'error': message}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/video-dubbing/start', methods=['POST'])
 def start_video_dubbing():
     try:
+        if not dubbing_service:
+            return jsonify({'error': 'Dubbing service not initialized. Check ELEVENLABS_API_KEY and restart backend.'}), 500
+
         if 'video' not in request.files:
             return jsonify({'error': 'Video file is required'}), 400
         
@@ -411,6 +390,9 @@ def start_video_dubbing():
             })
         else:
             os.unlink(input_video_path)
+            details = getattr(dubbing_service, "last_error", None)
+            if details:
+                return jsonify({'error': f'Failed to start dubbing: {details}'}), 500
             return jsonify({'error': 'Failed to start dubbing'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -423,6 +405,7 @@ def get_dubbing_status(dubbing_id):
         return jsonify({
             'success': True,
             'status': status_result['status'],
+            'raw_status': status_result.get('raw_status'),
             'dubbing_id': dubbing_id
         })
     except Exception as e:

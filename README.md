@@ -1,120 +1,62 @@
-# 🎬 Anuvaad AI - AI-Powered Video Dubbing Platform
+# Bhasha AI
 
-Transform your videos across languages with professional AI dubbing, translation, and creative tools.
+Bhasha AI is a multilingual media workspace for translating text, dubbing video, transcribing audio, generating spoken content, and turning ideas into stories and podcasts.
 
-## ✨ Features
+![Bhasha AI home page](docs/screenshots/bhasha-ai-home.png)
 
-- 🎥 **Video Dubbing** - AI-powered dubbing in 50+ languages
-- 📺 **YouTube Summarizer** - Get instant AI summaries of videos  
-- 📖 **Word to Story** - Transform words into creative stories
-- 🎙️ **Article to Podcast** - Convert articles to audio
-- 🗣️ **Text to Speech** - Natural voice synthesis
-- 🎤 **Speech to Text** - Accurate transcription
-- 🌐 **Text Translation** - AI-powered translation
+## Tools
 
-## 🚀 Quick Start
+- Video dubbing across multiple languages
+- Word-to-story generation
+- Article-to-podcast conversion
+- Speech-to-text transcription
+- Context-aware text translation
 
-### Prerequisites
+![Bhasha AI tools](docs/screenshots/bhasha-ai-tools.png)
 
-- Python 3.10+
-- Node.js 18+
-- FFmpeg
+## Technology
 
-### Installation
+- React 19 and Vite frontend
+- Flask REST API
+- SQLite with SQLAlchemy
+- JWT authentication
+- Google Gemini and ElevenLabs integrations
 
-1. **Clone the repository**
-   ```bash
-   cd anuvaad-ai
-   ```
+## Run locally
 
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   ```
+Create a `.env` file in the project root:
 
-3. **Activate virtual environment**
-   - Windows: `venv\Scripts\activate`
-   - Mac/Linux: `source venv/bin/activate`
-
-4. **Install dependencies**
-   ```bash
-   pip install -r app_requirements.txt
-   ```
-
-5. **Configure API keys**
-   ```bash
-   cp .env.example .env
-   ```
-   Then edit `.env` and add your API keys:
-   - Get ElevenLabs key: https://elevenlabs.io/app/settings/api-keys
-   - Get Gemini key: https://ai.google.dev/
-
-### Run the App
-
-Just one command:
-
-```bash
-python start.py
+```env
+ELEVENLABS_API_KEY=your_key
+GEMINI_API_KEY=your_key
+JWT_SECRET_KEY=replace_with_a_random_secret
 ```
 
-That's it! 🎉
+Start the backend:
 
-The app will be available at **http://localhost:5000**
-
-Press `Ctrl+C` to stop.
-
-## 📁 Project Structure
-
-```
-anuvaad-ai/
-├── start.py              # 🚀 Single command to start everything
-├── .env.example          # Template for API keys
-├── .env                  # Your API keys (create this)
-├── app_requirements.txt  # Python dependencies
-├── backend.py            # Flask backend
-├── frontend/             # React frontend
-└── ...
+```powershell
+uv sync
+uv run python backend.py
 ```
 
-## 🔑 API Keys
+In another terminal, start the frontend:
 
-You need:
-
-1. **ElevenLabs** (AI voice generation)
-   - Sign up: https://elevenlabs.io/
-   - Get key: https://elevenlabs.io/app/settings/api-keys
-
-2. **Google Gemini** (AI translation)
-   - Get key: https://ai.google.dev/
-
-## 📖 Documentation
-
-See `setup_guide.txt` for detailed setup instructions and troubleshooting.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React + Vite
-- **Backend**: Flask (Python)
-- **AI**: ElevenLabs + Google Gemini
-- **Processing**: MoviePy, FFmpeg, Pydub
-
-## 💡 Usage Tips
-
-- First-time setup takes 2-5 minutes (dependency installation)
-- Video processing is resource-intensive
-- Requires stable internet for AI APIs
-- Keep your `.env` file secure
-
-## 🐛 Common Issues
-
-**Module not found?**
-```bash
-pip install -r app_requirements.txt
+```powershell
+cd frontend
+npm install
+npm run dev -- --host 0.0.0.0 --port 5000
 ```
 
-**FFmpeg not found?**
-Install FFmpeg and add to PATH
+Open [http://localhost:5000](http://localhost:5000). The backend health endpoint is available at `http://localhost:5001/api/health`.
 
-**Port in use?**
-Stop other apps using ports 5000/5001
+## Validation
 
+Frontend quality checks:
+
+```powershell
+cd frontend
+npm run lint
+npm run build
+```
+
+See [METRICS.md](METRICS.md) for the current evaluation and performance results.

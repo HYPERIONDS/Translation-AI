@@ -20,19 +20,17 @@ function Reasons() {
     {
       icon: '💡',
       title: 'All-in-One Creative Suite',
-      description: 'Access video dubbing, YouTube summarization, story generation, and more - all the tools you need for content creation in one place.'
+      description: 'Access video dubbing, story generation, article-to-podcast, transcription, and translation in one focused creative workspace.'
     }
   ];
 
   return (
     <section className="reasons-section">
-      <h2 className="reasons-title">More reasons to use Anuvaad AI</h2>
+      <h2 className="reasons-title">More reasons to use Bhasha AI</h2>
       <div className="reasons-grid">
         {reasons.map((reason, idx) => (
           <div key={idx} className="reason-card">
-            <div className="reason-icon-wrapper">
-              <span className="reason-icon">{reason.icon}</span>
-            </div>
+            <span className="reason-number">{String(idx + 1).padStart(2, '0')}</span>
             <h3>{reason.title}</h3>
             <p>{reason.description}</p>
           </div>
