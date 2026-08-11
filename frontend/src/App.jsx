@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './auth-context';
 import './App.css';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -11,10 +11,8 @@ import Footer from './components/Footer';
 import FeatureModal from './components/FeatureModal';
 import LoginModal from './components/LoginModal';
 import VideoDubbing from './components/VideoDubbing';
-import YoutubeSummarizer from './components/YoutubeSummarizer';
 import WordToStory from './components/WordToStory';
 import ArticleToPodcast from './components/ArticleToPodcast';
-import TextToSpeech from './components/TextToSpeech';
 import SpeechToText from './components/SpeechToText';
 import TextTranslation from './components/TextTranslation';
 
@@ -42,22 +40,6 @@ function App() {
       image: '/attached_assets/stock_images/video_dubbing_microp_c08e1bb8.jpg',
       component: VideoDubbing,
       id: 'video-dubbing'
-    },
-    {
-      icon: '📺',
-      title: 'YouTube Summarizer',
-      shortDesc: 'Get instant AI-generated summaries of YouTube videos',
-      description: 'Save time with instant AI-generated summaries of YouTube videos. Our intelligent system extracts key points, main topics, and essential information, allowing you to grasp video content in minutes instead of hours.',
-      details: [
-        'Accurate content extraction',
-        'Key point identification',
-        'Timestamp references',
-        'Multi-language support',
-        'Customizable summary length'
-      ],
-      image: '/attached_assets/stock_images/youtube_video_conten_6e650ebb.jpg',
-      component: YoutubeSummarizer,
-      id: 'youtube-summarizer'
     },
     {
       icon: '📖',
@@ -94,22 +76,6 @@ function App() {
   ];
 
   const advancedTools = [
-    {
-      icon: '🗣️',
-      title: 'Text to Speech',
-      shortDesc: 'Convert text into natural-sounding speech',
-      description: 'Convert any text into natural-sounding speech with our advanced text-to-speech technology. Choose from multiple voices, accents, and languages to create professional voiceovers and audio content.',
-      details: [
-        'Multiple voice options',
-        'Natural intonation',
-        'Speed control',
-        'High-quality audio',
-        'Batch conversion'
-      ],
-      image: '/attached_assets/stock_images/text_to_speech_ai_te_2a30ee21.jpg',
-      component: TextToSpeech,
-      id: 'text-to-speech'
-    },
     {
       icon: '🎤',
       title: 'Speech to Text',
@@ -208,8 +174,8 @@ function App() {
   const ActiveComponent = getActiveComponent();
 
   return (
-    <div className="app-netflix">
-      <Header onSearchChange={handleSearch} />
+    <div className="app-shell">
+      <Header />
       
       <Hero />
       

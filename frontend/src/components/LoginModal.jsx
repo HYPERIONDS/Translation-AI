@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../auth-context';
 import './Modal.css';
 
 function LoginModal({ onClose, onSwitchToSignup }) {
@@ -74,7 +74,7 @@ function LoginModal({ onClose, onSwitchToSignup }) {
         </form>
         
         <div className="modal-footer">
-          <p>New to Anuvaad AI? <a href="#" onClick={(e) => { 
+          <p>New to Bhasha AI? <a href="#" onClick={(e) => {
             e.preventDefault(); 
             onClose(); 
             if (onSwitchToSignup) onSwitchToSignup();

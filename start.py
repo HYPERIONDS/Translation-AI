@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Anuvaad AI Startup Script
+Bhasha AI Startup Script
 Starts both backend and frontend servers with a single command
 """
 
@@ -52,7 +52,7 @@ def start_servers():
     
     try:
         print("\n" + "="*60)
-        print("🚀 Starting Anuvaad AI...")
+        print("🚀 Starting Bhasha AI...")
         print("="*60)
         
         # Start backend
@@ -82,7 +82,7 @@ def start_servers():
         time.sleep(3)  # Give frontend time to start
         
         print("\n" + "="*60)
-        print("✅ Anuvaad AI is now running!")
+        print("✅ Bhasha AI is now running!")
         print("="*60)
         print("\n🌐 Open your browser and go to:")
         print("   👉 http://localhost:5000")
@@ -110,14 +110,14 @@ def start_servers():
             except:
                 proc.kill()
         print("✅ All servers stopped")
-        print("\nThank you for using Anuvaad AI! 👋\n")
+        print("\nThank you for using Bhasha AI! 👋\n")
         sys.exit(0)
 
 if __name__ == "__main__":
     print("""
     ╔═══════════════════════════════════════════════════════════╗
     ║                                                           ║
-    ║              🎬 ANUVAAD AI STARTUP SCRIPT 🎬             ║
+    ║               🎬 BHASHA AI STARTUP SCRIPT 🎬              ║
     ║                                                           ║
     ║           AI-Powered Video Dubbing Platform               ║
     ║                                                           ║

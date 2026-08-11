@@ -1,17 +1,17 @@
-# Anuvaad AI - Professional Video Dubbing
+# Bhasha AI - Multilingual Media Platform
 
 ## Overview
 
-Anuvaad AI is a professional video dubbing application that translates and dubs videos from one language to another while maintaining synchronization and audio quality. The application uses ElevenLabs for AI voice generation, Google Gemini for translation, and various audio/video processing libraries to create seamless dubbed content.
+Bhasha AI is a professional multilingual media application for dubbing videos, generating narrated stories, turning articles into podcasts, transcribing speech, and translating text. The application uses ElevenLabs for AI voice generation, Google Gemini for language tasks, and audio/video processing libraries for polished media output.
 
 **Core Purpose**: 
 - **Video Dubbing**: Transform videos into different languages by extracting audio, translating, generating dubbed audio, and synchronizing with original video timing
-- **YouTube Summarizer**: Download and transcribe YouTube videos, then generate AI-powered summaries with customizable word count
 - **Word to Story**: Create engaging stories from input words with themes, supporting English and Hindi with emotional audio narration
-- **Additional Tools**: Text-to-speech, speech-to-text, and text translation utilities
+- **Article to Podcast**: Turn written articles into natural-sounding narrated audio
+- **Additional Tools**: Speech-to-text transcription and text translation utilities
 
 **Technology Stack**:
-- **Frontend**: React (Vite) with Netflix-style UI - modern, responsive interface with hero section, feature cards, and modal previews
+- **Frontend**: React (Vite) with a restrained, responsive editorial interface, photographic studio hero, feature cards, and modal previews
 - **Backend**: Flask REST API with JWT authentication
 - **Database**: SQLite for user accounts and history tracking
 - **Video Processing**: MoviePy, FFmpeg
@@ -25,16 +25,16 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### 1. Frontend Architecture (React-based Netflix-style UI)
+### 1. Frontend Architecture (React-based editorial UI)
 
 **Design Pattern**: Single-page application with component-based architecture
 
-The application uses React with Vite for a modern, Netflix-inspired interface:
-- **Styling Approach**: Custom CSS with Netflix-like design patterns
-- **Hero Section**: Full-width background image with gradient overlay and call-to-action
-- **Feature Cards**: Image-based cards with hover effects that open detailed modal previews
+The application uses React with Vite for a modern, focused interface:
+- **Styling Approach**: Custom CSS with a simplified editorial layout
+- **Hero Section**: Full-width photographic recording-studio background with a restrained overlay and call-to-action
+- **Feature Cards**: Clear image-based cards that open detailed modal previews
 - **Layout**: Responsive design with sticky header navigation
-- **Theme**: Dark theme with Netflix-style red accents (#E50914)
+- **Theme**: Teal, rust, sand, and charcoal over a handmade-paper texture
 - **Typography**: Inter font family for modern, clean appearance
 - **Authentication**: Modal-based login/signup flows with JWT token management
 
@@ -45,7 +45,7 @@ The application uses React with Vite for a modern, Netflix-inspired interface:
 - `Header.jsx` - Sticky navigation with login/signup buttons
 - `AuthContext.jsx` - Authentication state management
 
-**Key Decision**: React was chosen for its component reusability and ability to create a polished Netflix-style UI with smooth interactions.
+**Key Decision**: React was chosen for component reusability and a polished interface with straightforward interactions.
 
 ### 2. Backend Architecture (Modular Service Layer)
 
@@ -104,15 +104,6 @@ The application is organized into specialized service modules:
   - Segment-based synchronization
 - **Technology**: Pydub for audio manipulation, optional Librosa for time-stretching
 - **Design Decision**: Segment-based approach allows precise control over timing while maintaining audio quality
-
-#### YouTube Summarizer Service (`youtube_summarizer.py`) - Added Oct 2025
-- **Purpose**: Download, transcribe, and summarize YouTube videos
-- **Key Capabilities**:
-  - Download YouTube videos using yt-dlp
-  - Extract and transcribe audio in chunks for long videos
-  - Generate AI-powered summaries with configurable word count
-- **Technology**: yt-dlp for downloading, SpeechRecognition for transcription, Google Gemini for summarization
-- **Design Decision**: Chunk-based transcription handles long videos efficiently; summary-only output (no full transcript) keeps UI focused
 
 #### Story Generator Service (`story_generator.py`) - Added Oct 2025
 - **Purpose**: Generate creative stories from input words with emotional audio narration

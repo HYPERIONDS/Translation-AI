@@ -1,0 +1,501 @@
+{
+  "info": {
+    "_postman_id": "0ae711ea-8ae4-4fc3-bc8f-bhasha-api",
+    "name": "Bhasha AI - Local API Verification",
+    "description": "Local, quota-free verification of Bhasha AI's Flask API. Request count and pm.test assertion count must be reported separately.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('runId')) {",
+          "  const runId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;",
+          "  pm.collectionVariables.set('runId', runId);",
+          "  pm.collectionVariables.set('testEmail', `bhasha.newman.${runId}@example.test`);",
+          "  pm.collectionVariables.set('testPassword', 'Postman-Test-Password-42!');",
+          "  pm.collectionVariables.set('historyMarker', `postman-history-${runId}`);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "runId", "value": "" },
+    { "key": "testEmail", "value": "" },
+    { "key": "testPassword", "value": "" },
+    { "key": "accessToken", "value": "" },
+    { "key": "historyMarker", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Health returns HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Health response is JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Health payload is an object', () => pm.expect(body).to.be.an('object'));",
+                  "pm.test('Health status is ok', () => pm.expect(body.status).to.eql('ok'));",
+                  "pm.test('Health message identifies backend', () => pm.expect(body.message).to.eql('Backend is running'));",
+                  "pm.test('ElevenLabs configuration flag is boolean', () => pm.expect(body.elevenlabs_configured).to.be.a('boolean'));",
+                  "pm.test('Gemini configuration flag is boolean', () => pm.expect(body.gemini_configured).to.be.a('boolean'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Signup rejects missing fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Only a name\"\n}" },
+            "url": "{{baseUrl}}/api/auth/signup"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Incomplete signup returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Incomplete signup explains required fields', () => pm.expect(body.error).to.eql('Name, email, and password are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Signup rejects empty JSON",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": "{{baseUrl}}/api/auth/signup"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Empty signup returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Empty signup reports required fields', () => pm.expect(body.error).to.eql('Name, email, and password are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Signup creates a unique user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Verification User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/signup"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Valid signup returns HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.test('Signup marks success', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Signup returns confirmation message', () => pm.expect(body.message).to.eql('User created successfully'));",
+              "pm.test('Signup returns a JWT', () => pm.expect(body.access_token).to.be.a('string').and.not.empty);",
+              "pm.test('Signup returns the requested email', () => pm.expect(body.user.email).to.eql(pm.collectionVariables.get('testEmail')));",
+              "pm.test('Signup returns a numeric user id', () => pm.expect(body.user.id).to.be.a('number'));",
+              "pm.collectionVariables.set('accessToken', body.access_token);"
+            ]}
+          }]
+        },
+        {
+          "name": "Signup rejects duplicate email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Duplicate User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/signup"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Duplicate signup returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Duplicate signup identifies existing email', () => pm.expect(body.error).to.eql('Email already exists'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Login rejects missing fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{testEmail}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Incomplete login returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Incomplete login explains required fields', () => pm.expect(body.error).to.eql('Email and password are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Login rejects invalid password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"definitely-wrong\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Invalid login returns HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Invalid login uses safe generic error', () => pm.expect(body.error).to.eql('Invalid email or password'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Login rejects unknown email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"missing.{{runId}}@example.test\",\n  \"password\": \"{{testPassword}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Unknown email login returns HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Unknown email uses safe generic error', () => pm.expect(body.error).to.eql('Invalid email or password'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Login returns a JWT",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}" },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Valid login returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Login marks success', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Login returns a JWT', () => pm.expect(body.access_token).to.be.a('string').and.not.empty);",
+              "pm.test('Login returns the correct user', () => pm.expect(body.user.email).to.eql(pm.collectionVariables.get('testEmail')));",
+              "pm.test('Login response omits password hash', () => pm.expect(body.user).not.to.have.property('password_hash'));",
+              "pm.collectionVariables.set('accessToken', body.access_token);"
+            ]}
+          }]
+        },
+        {
+          "name": "Current user rejects missing JWT",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing JWT returns HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Missing JWT has an authorization message', () => pm.expect(body.msg).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        },
+        {
+          "name": "Current user rejects malformed JWT",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer not-a-valid-jwt" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Malformed JWT returns HTTP 422', () => pm.response.to.have.status(422));",
+              "pm.test('Malformed JWT returns parser message', () => pm.expect(body.msg).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        },
+        {
+          "name": "Current user accepts valid JWT",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Valid JWT user lookup returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('User lookup marks success', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('User lookup returns correct email', () => pm.expect(body.user.email).to.eql(pm.collectionVariables.get('testEmail')));",
+              "pm.test('User lookup returns account creation timestamp', () => pm.expect(body.user.created_at).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "item": [
+        {
+          "name": "History rejects missing JWT",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/history"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Unauthenticated history returns HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Unauthenticated history explains JWT requirement', () => pm.expect(body.msg).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        },
+        {
+          "name": "History rejects malformed JWT",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer malformed-history-token" }],
+            "url": "{{baseUrl}}/api/history"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Malformed history JWT returns HTTP 422', () => pm.response.to.have.status(422));",
+              "pm.test('Malformed history JWT returns parser message', () => pm.expect(body.msg).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        },
+        {
+          "name": "Save history entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"feature_type\": \"postman_verification\",\n  \"feature_data\": {\n    \"marker\": \"{{historyMarker}}\",\n    \"source\": \"newman\"\n  }\n}" },
+            "url": "{{baseUrl}}/api/history"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('History save returns HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.test('History save marks success', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('History save returns confirmation', () => pm.expect(body.message).to.eql('History saved'));",
+              "pm.test('Saved history retains feature type', () => pm.expect(body.history.feature_type).to.eql('postman_verification'));",
+              "pm.test('Saved history retains marker', () => pm.expect(body.history.feature_data.marker).to.eql(pm.collectionVariables.get('historyMarker')));"
+            ]}
+          }]
+        },
+        {
+          "name": "Retrieve saved history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/history"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "const marker = pm.collectionVariables.get('historyMarker');",
+              "const match = body.history.find((entry) => entry.feature_data && entry.feature_data.marker === marker);",
+              "pm.test('History retrieval returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('History retrieval marks success', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('History retrieval returns an array', () => pm.expect(body.history).to.be.an('array'));",
+              "pm.test('History retrieval contains saved marker', () => pm.expect(match).to.be.an('object'));",
+              "pm.test('Retrieved history includes timestamp', () => pm.expect(match.created_at).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Validation and error handling",
+      "item": [
+        {
+          "name": "Translation rejects missing fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Hello\"\n}" },
+            "url": "{{baseUrl}}/api/text-translation"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Incomplete translation returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Translation lists missing fields', () => pm.expect(body.error).to.eql('Text, from_lang, and to_lang are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Translation rejects missing source language",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Hello\",\n  \"to_lang\": \"Hindi\"\n}" },
+            "url": "{{baseUrl}}/api/text-translation"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing source language returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Missing source language uses field validation error', () => pm.expect(body.error).to.eql('Text, from_lang, and to_lang are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Translation rejects missing target language",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Hello\",\n  \"from_lang\": \"English\"\n}" },
+            "url": "{{baseUrl}}/api/text-translation"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing target language returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Missing target language uses field validation error', () => pm.expect(body.error).to.eql('Text, from_lang, and to_lang are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Translation rejects identical languages",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Hello\",\n  \"from_lang\": \"English\",\n  \"to_lang\": \"English\"\n}" },
+            "url": "{{baseUrl}}/api/text-translation"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Same-language translation returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Same-language translation explains conflict', () => pm.expect(body.error).to.eql('Source and target languages must be different'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Speech to text rejects missing audio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/speech-to-text"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing audio returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Missing audio identifies required file', () => pm.expect(body.error).to.eql('Audio file is required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Word to story rejects missing inputs",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"words\": \"river, moon\"\n}" },
+            "url": "{{baseUrl}}/api/word-to-story"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Incomplete story request returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Story validation identifies missing theme', () => pm.expect(body.error).to.eql('Words and theme are required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Article to podcast rejects missing article",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"script_word_count\": 200\n}" },
+            "url": "{{baseUrl}}/api/article-to-podcast"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing article returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Podcast validation identifies required article', () => pm.expect(body.error).to.eql('Article text is required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Video dubbing rejects missing upload",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/video-dubbing/start"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing video returns HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('Dubbing validation identifies required video', () => pm.expect(body.error).to.eql('Video file is required'));"
+            ]}
+          }]
+        },
+        {
+          "name": "Missing asset returns JSON 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/attached_assets/does-not-exist-postman.png"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "type": "text/javascript", "exec": [
+              "const body = pm.response.json();",
+              "pm.test('Missing asset returns HTTP 404', () => pm.response.to.have.status(404));",
+              "pm.test('Missing asset returns error details', () => pm.expect(body.error).to.be.a('string').and.not.empty);"
+            ]}
+          }]
+        }
+      ]
+    }
+  ]
+}

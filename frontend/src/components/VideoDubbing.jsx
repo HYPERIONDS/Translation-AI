@@ -52,7 +52,7 @@ function VideoDubbing() {
         setError('Dubbing failed. Please try again.');
         setLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to check status');
       setLoading(false);
     }
@@ -95,7 +95,7 @@ function VideoDubbing() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch {
       setError('Failed to download video');
     }
   };

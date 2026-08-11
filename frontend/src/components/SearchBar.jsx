@@ -14,13 +14,13 @@ function SearchBar({ onSearch }) {
       <form onSubmit={handleSubmit} className="search-form">
         <input
           type="text"
-          placeholder="Search for features, tools, or content..."
+          placeholder="Search tools"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
         <button type="submit" className="search-btn">
-          🔍
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" /></svg>
         </button>
       </form>
     </div>

@@ -1,5 +1,5 @@
 {
-  "name": "workspace",
+  "name": "bhasha-ai",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -7,7 +7,8 @@
   },
   "keywords": [],
   "author": "",
-  "description": "",
+  "license": "ISC",
+  "description": "AI-powered multilingual media platform",
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.4",
     "axios": "^1.12.2",

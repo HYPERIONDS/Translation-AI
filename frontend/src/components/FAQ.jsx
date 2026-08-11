@@ -6,8 +6,8 @@ function FAQ() {
 
   const faqs = [
     {
-      question: 'What is Anuvaad AI?',
-      answer: 'Anuvaad AI is a professional AI-powered platform that helps you translate and dub videos, summarize YouTube content, generate creative stories, and perform various text and audio transformations. We use advanced AI technology from ElevenLabs and Google Gemini to deliver high-quality, natural-sounding results across 50+ languages.'
+      question: 'What is Bhasha AI?',
+      answer: 'Bhasha AI is a professional AI-powered platform for video dubbing, story generation, article-to-podcast conversion, speech transcription, and text translation. We use advanced AI technology from ElevenLabs and Google Gemini to deliver high-quality, natural-sounding results across 50+ languages.'
     },
     {
       question: 'How does the video dubbing feature work?',
@@ -15,11 +15,11 @@ function FAQ() {
     },
     {
       question: 'Which languages are supported?',
-      answer: 'Anuvaad AI supports 50+ languages including English, Spanish, French, German, Hindi, Mandarin, Japanese, Korean, Arabic, Portuguese, Italian, Russian, and many more. Our AI ensures natural translations while preserving context, tone, and cultural nuances.'
+      answer: 'Bhasha AI supports 50+ languages including English, Spanish, French, German, Hindi, Mandarin, Japanese, Korean, Arabic, Portuguese, Italian, Russian, and many more. Our AI ensures natural translations while preserving context, tone, and cultural nuances.'
     },
     {
       question: 'What file formats are supported?',
-      answer: 'For video dubbing, we support common formats like MP4, AVI, MOV, and MKV. Audio files can be WAV, MP3, or M4A. Our YouTube Summarizer works with any YouTube video URL. All processed files are returned in widely compatible formats for easy use.'
+      answer: 'For video dubbing, we support common formats like MP4, AVI, MOV, and MKV. Speech transcription accepts common audio formats such as WAV, MP3, and M4A, while generated podcasts and story narration are available as widely compatible audio files.'
     },
     {
       question: 'How accurate is the translation?',
@@ -30,12 +30,12 @@ function FAQ() {
       answer: 'File size and video length limits depend on your subscription plan. Free users can process videos up to 10 minutes and 100MB. Premium users enjoy extended limits with videos up to 2 hours and 1GB file sizes. Check your account dashboard for specific limits.'
     },
     {
-      question: 'Can I use Anuvaad AI for commercial purposes?',
-      answer: 'Yes! Anuvaad AI can be used for commercial projects including marketing videos, educational content, podcasts, YouTube videos, and business presentations. All content you create with our platform is yours to use commercially.'
+      question: 'Can I use Bhasha AI for commercial purposes?',
+      answer: 'Yes! Bhasha AI can be used for commercial projects including marketing videos, educational content, podcasts, YouTube videos, and business presentations. All content you create with our platform is yours to use commercially. Please review our Terms of Service for complete licensing details.'
     },
     {
       question: 'How do I get started?',
-      answer: 'Getting started is easy! Simply sign up for a free account, choose the feature you want to use (video dubbing, YouTube summarizer, etc.), upload your content or provide a URL, select your target language, and let our AI do the work. Your processed content will be ready for download in minutes.'
+      answer: 'Getting started is easy! Sign up for a free account, choose video dubbing, story generation, article-to-podcast, speech-to-text, or translation, provide your content and options, and let the AI do the work. Your processed content will be ready to review or download in minutes.'
     }
   ];
 

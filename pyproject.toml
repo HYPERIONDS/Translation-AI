@@ -1,7 +1,7 @@
 [project]
-name = "repl-nix-workspace"
+name = "bhasha-ai"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-powered multilingual dubbing, translation, transcription, and audio generation platform"
 requires-python = ">=3.11"
 dependencies = [
     "elevenlabs>=2.16.0",

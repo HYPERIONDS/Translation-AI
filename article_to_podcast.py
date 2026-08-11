@@ -2,7 +2,8 @@ import os
 import tempfile
 import subprocess
 from typing import Optional, Dict, Callable
-from elevenlabs import ElevenLabs, VoiceSettings
+from elevenlabs.client import ElevenLabs
+from elevenlabs import VoiceSettings
 from google import genai
 
 class ArticleToPodcast:
@@ -12,6 +13,7 @@ class ArticleToPodcast:
         """Initialize article to podcast service with Gemini and ElevenLabs APIs"""
         self.gemini_client = genai.Client(api_key=gemini_api_key)
         self.elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
+        self.last_error: str = ""
         
         # Voice mapping for different speakers
         self.host_voice_id = "pNInz6obpgDQGcFmaJgB"    # Adam - Host voice
@@ -41,7 +43,7 @@ Generate the podcast script:
 """
             
             response = self.gemini_client.models.generate_content(
-                model="gemini-2.0-flash-exp",
+                model="gemini-3-flash-preview",
                 contents=prompt
             )
             
@@ -52,6 +54,7 @@ Generate the podcast script:
                 return self._generate_fallback_script(article_text)
                 
         except Exception as e:
+            self.last_error = str(e)
             print(f"Error generating podcast script: {e}")
             return self._generate_fallback_script(article_text)
     
@@ -91,6 +94,7 @@ Expert: My pleasure. It's important to stay informed about these developments.""
             return True
             
         except Exception as e:
+            self.last_error = str(e)
             print(f"Error generating audio: {e}")
             return False
     
@@ -117,6 +121,7 @@ Expert: My pleasure. It's important to stay informed about these developments.""
             return True
             
         except Exception as e:
+            self.last_error = str(e)
             print(f"Error merging audio files: {e}")
             return False
     
@@ -133,46 +138,90 @@ Expert: My pleasure. It's important to stay informed about these developments.""
             
             script = self.generate_podcast_script(article_text, script_word_count)
             if not script:
+                self.last_error = "Podcast script generation returned empty output."
                 return None
             
             # Step 2: Parse script and generate audio for each line
             if progress_callback:
                 progress_callback("Generating audio for speakers...", 40)
-            
-            lines = script.strip().split('\n')
+
+            def _parse_script_to_segments(script_text: str):
+                """Parse Gemini script output into (speaker, text) segments."""
+                import re
+
+                # Match lines like:
+                # - Host: ...
+                # - Expert - ...
+                # - **Host:** ...
+                # - Speaker 1: ...
+                # Accept lines like:
+                # - Host: ...
+                # - Expert - ...
+                # - **Host:** ...
+                # - **Expert**: ...
+                # - Speaker 1: ...
+                line_pattern = re.compile(
+                    r"^\s*\*{0,2}\s*(Host|Expert|Speaker\s*\d+|Speaker)\s*[:\-–—]\s*\*{0,2}\s*(.*)$",
+                    re.IGNORECASE
+                )
+
+                segments = []
+                last_role = 'host'
+
+                for raw_line in script_text.splitlines():
+                    line = raw_line.strip()
+                    if not line:
+                        continue
+
+                    m = line_pattern.match(line)
+                    if m:
+                        role = m.group(1).strip().lower()
+                        text = m.group(2).strip()
+
+                        if 'expert' in role:
+                            last_role = 'expert'
+                        else:
+                            last_role = 'host'
+
+                        segments.append((last_role, text))
+                    else:
+                        # Treat as continuation of prior segment
+                        if segments:
+                            prev_role, prev_text = segments[-1]
+                            segments[-1] = (prev_role, prev_text + ' ' + line)
+                        else:
+                            segments.append((last_role, line))
+
+                return segments
+
+            segments = _parse_script_to_segments(script)
             audio_files = []
             temp_files = []
-            
-            for i, line in enumerate(lines):
-                line = line.strip()
-                if not line:
+
+            for i, (speaker, text) in enumerate(segments):
+                if not text.strip():
                     continue
-                
-                speaker, text, voice_id = "", "", ""
-                
-                if line.lower().startswith("host:"):
-                    speaker, text, voice_id = "Host", line[5:].strip(), self.host_voice_id
-                elif line.lower().startswith("expert:"):
-                    speaker, text, voice_id = "Expert", line[7:].strip(), self.expert_voice_id
-                else:
-                    continue
-                
-                if not text:
-                    continue
-                
+
+                voice_id = self.host_voice_id if speaker == 'host' else self.expert_voice_id
+
                 # Generate audio file
                 temp_audio = tempfile.mktemp(suffix=f'_speaker_{i}.mp3')
                 temp_files.append(temp_audio)
-                
+
                 if self.generate_speaker_audio(text, voice_id, temp_audio):
                     audio_files.append(temp_audio)
-                
+
                 # Update progress
                 if progress_callback:
-                    progress = 40 + int((i / len(lines)) * 40)
-                    progress_callback(f"Processing speaker {i+1}/{len(lines)}...", progress)
-            
+                    progress = 40 + int((i / len(segments)) * 40)
+                    progress_callback(f"Processing speaker {i+1}/{len(segments)}...", progress)
+
             if not audio_files:
+                self.last_error = (
+                    "No audio files were generated. "
+                    "This usually happens when the generated script doesn't include identifiable speaker lines (e.g. 'Host:'/'Expert:').\n"
+                    f"Generated script output:\n{script}\n"
+                )
                 return None
             
             # Step 3: Merge audio files
@@ -183,6 +232,7 @@ Expert: My pleasure. It's important to stay informed about these developments.""
             temp_files.append(final_output)
             
             if not self.merge_audio_files(audio_files, final_output):
+                self.last_error = self.last_error or "Failed to merge audio segments into final podcast file."
                 return None
             
             # Step 4: Read the final audio file
@@ -206,5 +256,6 @@ Expert: My pleasure. It's important to stay informed about these developments.""
             return audio_bytes
             
         except Exception as e:
+            self.last_error = str(e)
             print(f"Error creating podcast: {e}")
             return None
