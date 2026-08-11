@@ -49,14 +49,4 @@ npm run dev -- --host 0.0.0.0 --port 5000
 
 Open [http://localhost:5000](http://localhost:5000). The backend health endpoint is available at `http://localhost:5001/api/health`.
 
-## Validation
 
-Frontend quality checks:
-
-```powershell
-cd frontend
-npm run lint
-npm run build
-```
-
-See [METRICS.md](METRICS.md) for the current evaluation and performance results.
